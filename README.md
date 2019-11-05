@@ -4,7 +4,7 @@
 - 諸事情により対象を 920MHz 帯に固定している。
 - 変えるには REC=02-08-00-00 を適当に書き換える。
 - 技術基準適合証明等を受けた機器の検索 Web-API のコード値一覧を参照。
-- SSLの Warningを出さないようにするには後述の環境変数を設定する。
+- SSLの Warningを出さないようにするには[後述](#warning-を止める)の環境変数を設定する。
 
 ## 件数の取得
 
@@ -62,10 +62,11 @@ size=34
 
 ## Usage
 
+- get_records
+
 ```
 usage: get_records.py [-h] [--date-from DATE_FROM] [--date-to DATE_TO]
-                      [--interval INTERVAL] [--dc {4,5,6,7}] [--only-count]
-                      [-v]
+                      [--interval INTERVAL] [--dc {4,5,6,7}] [--retrieve] [-v]
                       [db_file]
 
 retriving the records in the giteki database.
@@ -85,13 +86,13 @@ optional arguments:
   --dc {4,5,6,7}        specify an index number for the chunk size.
                         DC:chunk_size = {4: 50, 5: 100, 6: 500, 7: 1000}
                         (default: 6)
-  --only-count          specify to only get the number of the list. (default:
-                        False)
+  --retrieve            specify to retrieve the records. (default: False)
   -v                    enable verbose mode. (default: False)
 ```
 
+- reader.py
+
 ```
-tnc] ./reader.py --help                                   [~/work/tools/giteki]
 usage: reader.py [-h] [--name NAME] [--date-from DATE_FROM]
                  [--date-to DATE_TO] [--max-tx-power MAX_TX_POWER]
                  [--min-tx-power MIN_TX_POWER] [--ch-width CH_WIDTH]

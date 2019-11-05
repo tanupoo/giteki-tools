@@ -6,6 +6,7 @@ import re
 import math
 from dateutil.parser import parse as date_parse
 import argparse
+import lzma
 
 stat_keys = [
         "name",
@@ -154,6 +155,8 @@ ap.add_argument("--show-others", action="store_true", dest="show_others",
                 help="enable to show other recoreds.")
 ap.add_argument("-v", action="store_true", dest="verbose",
                 help="enable verbose mode.")
+ap.add_argument("--xz", action="store_true", dest="enable_xz",
+                help="specify the db is compressed by xz.")
 ap.add_argument("--show-stat", action="store_true", dest="show_stat",
                 help="specify to show the statistics.")
 
@@ -165,6 +168,8 @@ output_file = sys.stdout
 # load db
 if opt.db_file == "-":
     db = json.load(sys.stdin)
+elif opt.enable_xz:
+    db = json.load(lzma.open(opt.db_file))
 else:
     db = json.load(open(opt.db_file))
 

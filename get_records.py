@@ -55,8 +55,8 @@ ap.add_argument("--dc", action="store", dest="chunk_size_index",
                 choices=chunk_size_indexes.keys(),
                 help="""specify an index number for the chunk size.
                 DC:chunk_size = {}""".format(chunk_size_indexes))
-ap.add_argument("--only-count", action="store_true", dest="only_count",
-                help="specify to only get the number of the list.")
+ap.add_argument("--retrieve", action="store_true", dest="retrieve",
+                help="specify to retrieve the records.")
 ap.add_argument("-v", action="store_true", dest="verbose",
                 default=False, help="enable verbose mode.")
 
@@ -78,10 +78,10 @@ ret = send_request(url)
 nb_list = int(ret["giteki"]["count"])
 chunk_size = chunk_size_indexes[opt.chunk_size_index]
 
-if opt.verbose or opt.only_count:
+if opt.verbose or not opt.retrieve:
     print("size={}".format(nb_list), file=sys.stderr)
 
-if opt.only_count:
+if not opt.retrieve:
     exit(0)
 
 # get the list.

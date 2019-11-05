@@ -4,18 +4,21 @@
 - 諸事情により対象を 920MHz 帯に固定している。
 - 変えるには REC=02-08-00-00 を適当に書き換える。
 - 技術基準適合証明等を受けた機器の検索 Web-API のコード値一覧を参照。
+- SSLの Warningを出さないようにするには後述の環境変数を設定する。
 
 ## 件数の取得
 
 ```
-% get_records.py --date-from 20130101 --date-to 20130120 --only-count
+% get_records.py --date-from 20130101 --date-to 20130120
 size=34
 ```
 
 ## 登録情報の取得
 
+出力ファイルを指定しないと標準出力に表示する。
+
 ```
-% get_records.py --date-from 20121226 --date-to 20121226   
+% get_records.py --date-from 20121226 --date-to 20121226 --retrieve 
 [
   {
     "gitekiInfo": {
@@ -40,15 +43,22 @@ size=34
 ]
 ```
 
+下記コマンドは、60秒ごとに500件づつ920MHzを全件持ってくる。
+2019年10月11日時点で 22809件あった。
+
+```
+% get_records.py result-920-20191011.db --retrieve
+```
+
 ## get_records.py で保存したファイルを読み込む。
 
 - 全体の統計など
 
-    ./reader.py result-20191022.db  -v
+    reader.py result-920-20191011.db  -v
 
 - 特定の組織の情報だけを読む。
 
-    ./reader.py result-20191022.db --name '大崎電気'
+    reader.py result-920-20191011.db --name '大崎電気'
 
 ## Usage
 

@@ -127,9 +127,13 @@ optional arguments:
 
 ## warning を止める
 
+下記の様なwarningが出ることがある。
+
 ```
 /Users/sakane/.pyenv/versions/3.7.2/lib/python3.7/site-packages/urllib3/connectionpool.py:847: InsecureRequestWarning: Unverified HTTPS request is being made. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#ssl-warnings InsecureRequestWarning)
 ```
+
+これを止めるには環境変数 PYTHONWARNINGS に ignore:Unverified HTTPS request を設定する。
 
 ```
 export PYTHONWARNINGS="ignore:Unverified HTTPS request"

@@ -116,14 +116,6 @@ def set_ch_width(d, target=None):
         ch_width = float(r.group(1)) * get_unit(r.group(2))
         d["ch_width"] = ch_width
 
-def within_period(d):
-    if dt_from > date_parse(d["gitekiInfo"]["date"]):
-        return False
-    elif dt_to < date_parse(d["gitekiInfo"]["date"]):
-        return False
-    else:
-        return True
-
 #
 # main
 #
@@ -131,7 +123,7 @@ ap = argparse.ArgumentParser(
         description="a reader of the response from GITEKI db.",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 ap.add_argument("db_file", help="database in JSON.")
-ap.add_argument("--name", action="store", dest="name",
+ap.add_argument("--name", action="store", dest="vname",
                 help="specify a vendor name.")
 ap.add_argument("--date-from", action="store", dest="date_from",
                 default="19700101",
@@ -159,6 +151,8 @@ ap.add_argument("--xz", action="store_true", dest="enable_xz",
                 help="specify the db is compressed by xz.")
 ap.add_argument("--show-stat", action="store_true", dest="show_stat",
                 help="specify to show the statistics.")
+ap.add_argument("--all", action="store_true", dest="whole_records",
+                help="find all records.  default is 920MHz devices.")
 
 opt = ap.parse_args()
 dt_from = date_parse(opt.date_from)
@@ -176,7 +170,9 @@ else:
 db_target = []
 db_others = []
 db_stat = {
-        "total_size": len(db)
+        "total_records": len(db),
+        "date_from": date_parse("2999-12-31"),
+        "date_to": date_parse("1999-12-31"),
         }
 
 # take only 920MHz, 20mW band.
@@ -188,35 +184,43 @@ for d in db:
     if not opt.verbose:
         sanitize(d)
 
-    if opt.name is not None and opt.name not in d["gitekiInfo"]["name"]:
+    if opt.vname is not None and opt.vname not in d["gitekiInfo"]["name"]:
         db_others.append(d)
         continue
     #
-    if not within_period(d):
+    dt_this = date_parse(d["gitekiInfo"]["date"])
+    if dt_from > dt_this or dt_to < dt_this:
         db_others.append(d)
         continue
     # check if it's for 920MHz.
-    if d["freq_max"] > 928000000 or d["freq_min"] < 920600000:
-        db_others.append(d)
-        continue
-    # check if it's 20mW.
-    if d["tx_power"] > opt.max_tx_power or d["tx_power"] <= opt.min_tx_power:
-        db_others.append(d)
-        continue
-    # check the channel width
-    if d["ch_width"] == 0 and opt.specific_ch_width is True:
-        db_others.append(d)
-        continue
-    #
-    if opt.ch_width is not None and d["ch_width"] != opt.ch_width:
-        db_others.append(d)
-        continue
+    if not opt.whole_records:
+        if d["freq_max"] > 928000000 or d["freq_min"] < 920600000:
+            db_others.append(d)
+            continue
+        # check if it's 20mW.
+        if d["tx_power"] > opt.max_tx_power or d["tx_power"] <= opt.min_tx_power:
+            db_others.append(d)
+            continue
+        # check the channel width
+        if d["ch_width"] == 0 and opt.specific_ch_width is True:
+            db_others.append(d)
+            continue
+        #
+        if opt.ch_width is not None and d["ch_width"] != opt.ch_width:
+            db_others.append(d)
+            continue
 
     # passed all checks.
+    if db_stat["date_from"] > dt_this:
+        db_stat["date_from"] = dt_this
+    if db_stat["date_to"] < dt_this:
+        db_stat["date_to"] = dt_this
     db_target.append(d)
 
-db_stat["target_size"] = len(db_target)
-db_stat["others_size"] = len(db_others)
+db_stat["date_from"] = db_stat["date_from"].strftime("%Y-%m-%d")
+db_stat["date_to"] = db_stat["date_to"].strftime("%Y-%m-%d")
+db_stat["target_records"] = len(db_target)
+db_stat["others_records"] = len(db_others)
 
 def add_stat(d):
     for n in stat_keys:
